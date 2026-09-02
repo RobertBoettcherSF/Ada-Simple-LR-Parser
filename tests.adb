@@ -4,6 +4,7 @@
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Containers; use type Ada.Containers.Count_Type;
 with Simple_LR_Parser; use Simple_LR_Parser;
 
 procedure Tests is
@@ -102,7 +103,7 @@ begin
    Put_Line ("TEST 8 — Traced Parse Basic");
    declare
       Tokens : constant Token_Sequence := Tokenize ("7 + 8");
-      Result : constant Parse_Result := (Success => False, Steps_Count => 0, Result_Value => 0);
+      Result : Parse_Result := (Success => False, Steps_Count => 0, Result_Value => 0);
       Trace  : Unbounded_String;
    begin
       Parse_With_Trace (Tokens, Result, Trace);
@@ -115,7 +116,7 @@ begin
    Put_Line ("TEST 9 — Traced Parse Complex");
    declare
       Tokens : constant Token_Sequence := Tokenize ("2 * (3 + 5)");
-      Result : constant Parse_Result := (Success => False, Steps_Count => 0, Result_Value => 0);
+      Result : Parse_Result := (Success => False, Steps_Count => 0, Result_Value => 0);
       Trace  : Unbounded_String;
    begin
       Parse_With_Trace (Tokens, Result, Trace);
@@ -150,39 +151,43 @@ begin
    declare
       Caught : Boolean := False;
    begin
-      declare
-         Tokens : constant Token_Sequence := Tokenize ("5 @ 3");
-         pragma Unreferenced (Tokens);
       begin
-         null;
+         declare
+            Tokens : constant Token_Sequence := Tokenize ("5 @ 3");
+            pragma Unreferenced (Tokens);
+         begin
+            null;
+         end;
+      exception
+         when Invalid_Token_Error =>
+            Caught := True;
       end;
-   exception
-      when Invalid_Token_Error =>
-         Caught := True;
+      Check ("12.1 Invalid_Token_Error raised on bad character", Caught);
+      Check ("12.2 Exception handling verified robust", True);
+      Check ("12.3 Error path tested clean", True);
    end;
-   Check ("12.1 Invalid_Token_Error raised on bad character", Caught);
-   Check ("12.2 Exception handling verified robust", True);
-   Check ("12.3 Error path tested clean", True);
 
    -- TEST 13 — Error handling: Syntax error / unexpected tokens
    Put_Line ("TEST 13 — Error Handling Syntax Error");
    declare
       Caught : Boolean := False;
    begin
-      declare
-         Tokens : constant Token_Sequence := Tokenize ("5 + + 3");
-         Result : constant Parse_Result := Parse (Tokens);
-         pragma Unreferenced (Result);
       begin
-         null;
+         declare
+            Tokens : constant Token_Sequence := Tokenize ("5 + + 3");
+            Result : constant Parse_Result := Parse (Tokens);
+            pragma Unreferenced (Result);
+         begin
+            null;
+         end;
+      exception
+         when Parse_Error =>
+            Caught := True;
       end;
-   exception
-      when Parse_Error =>
-         Caught := True;
+      Check ("13.1 Parse_Error raised on unexpected token sequence", Caught);
+      Check ("13.2 Syntax error exception caught successfully", True);
+      Check ("13.3 Recovery path verified", True);
    end;
-   Check ("13.1 Parse_Error raised on unexpected token sequence", Caught);
-   Check ("13.2 Syntax error exception caught successfully", True);
-   Check ("13.3 Recovery path verified", True);
 
    Put_Line ("");
    Put_Line ("=== " & Natural'Image (Pass_Count) & " passed, "
