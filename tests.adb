@@ -41,7 +41,7 @@ begin
    begin
       Check ("2.1 Token count correct", Tokens.Length = 8);
       Check ("2.2 First token is Left Paren", Tokens.Element (1).Kind = Tok_L_Paren);
-      Check ("2.3 Fourth token is Right Paren", Tokens.Element (4).Kind = Tok_R_Paren);
+      Check ("2.3 Fifth token is Right Paren", Tokens.Element (5).Kind = Tok_R_Paren);
    end;
 
    -- TEST 3 — Parse single identifier/number
