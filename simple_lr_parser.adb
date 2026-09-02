@@ -2,7 +2,6 @@
 -- Package Body: Simple_LR_Parser
 --------------------------------------------------------------------------------
 
-with Ada.Text_IO;
 with Ada.Characters.Handling;
 
 package body Simple_LR_Parser is
@@ -176,16 +175,16 @@ package body Simple_LR_Parser is
          if Text (I) = ' ' or else Text (I) = ASCII.HT or else Text (I) = ASCII.LF or else Text (I) = ASCII.CR then
             I := I + 1;
          elsif Text (I) = '+' then
-            Result.Append ((Kind => Tok_Plus, Lexeme => Ada.Strings.Unbounded.To_String ("+"), Value => 0));
+            Result.Append (Token_Rec'(Kind => Tok_Plus, Lexeme => Ada.Strings.Unbounded.To_Unbounded_String ("+"), Value => 0));
             I := I + 1;
          elsif Text (I) = '*' then
-            Result.Append ((Kind => Tok_Star, Lexeme => Ada.Strings.Unbounded.To_String ("*"), Value => 0));
+            Result.Append (Token_Rec'(Kind => Tok_Star, Lexeme => Ada.Strings.Unbounded.To_Unbounded_String ("*"), Value => 0));
             I := I + 1;
          elsif Text (I) = '(' then
-            Result.Append ((Kind => Tok_L_Paren, Lexeme => Ada.Strings.Unbounded.To_String ("("), Value => 0));
+            Result.Append (Token_Rec'(Kind => Tok_L_Paren, Lexeme => Ada.Strings.Unbounded.To_Unbounded_String ("("), Value => 0));
             I := I + 1;
          elsif Text (I) = ')' then
-            Result.Append ((Kind => Tok_R_Paren, Lexeme => Ada.Strings.Unbounded.To_String (")"), Value => 0));
+            Result.Append (Token_Rec'(Kind => Tok_R_Paren, Lexeme => Ada.Strings.Unbounded.To_Unbounded_String (")"), Value => 0));
             I := I + 1;
          elsif Ada.Characters.Handling.Is_Digit (Text (I)) or else Ada.Characters.Handling.Is_Letter (Text (I)) then
             declare
@@ -194,14 +193,14 @@ package body Simple_LR_Parser is
                while I <= Text'Last and then (Ada.Characters.Handling.Is_Alphanumeric (Text (I)) or else Text (I) = '_') loop
                   I := I + 1;
                end loop;
-               Lexeme_Str := Ada.Strings.Unbounded.To_String (Text (Start_Idx .. I - 1));
+               Lexeme_Str := Ada.Strings.Unbounded.To_Unbounded_String (Text (Start_Idx .. I - 1));
                begin
                   Num_Val := Integer'Value (Ada.Strings.Unbounded.To_String (Lexeme_Str));
                exception
                   when others =>
                      Num_Val := 10; -- Default symbolic value for identifiers
                end;
-               Result.Append ((Kind => Tok_Id, Lexeme => Lexeme_Str, Value => Num_Val));
+               Result.Append (Token_Rec'(Kind => Tok_Id, Lexeme => Lexeme_Str, Value => Num_Val));
             end;
          else
             raise Invalid_Token_Error with "Unexpected character in input: " & Text (I);
@@ -209,7 +208,7 @@ package body Simple_LR_Parser is
       end loop;
 
       -- Append EOF marker
-      Result.Append ((Kind => Tok_Eof, Lexeme => Ada.Strings.Unbounded.To_String ("$"), Value => 0));
+      Result.Append (Token_Rec'(Kind => Tok_Eof, Lexeme => Ada.Strings.Unbounded.To_Unbounded_String ("$"), Value => 0));
       return Result;
    end Tokenize;
 
